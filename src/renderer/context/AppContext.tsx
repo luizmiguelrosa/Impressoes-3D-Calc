@@ -1,23 +1,14 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import type { CalculationHistoryItem } from '../../main/types';
 
-export interface CalculationItem {
-  id: string;
-  filamentId: string;
-  filamentName: string;
-  weightG: number;
-  timeHours: number;
-  quantity: number;
-  unitPrice: number;
-  finalPrice: number;
-  timestamp: number;
-}
+export type CalculationItem = CalculationHistoryItem;
 
 export interface AppContextType {
   // Histórico de Cálculos
   history: CalculationItem[];
-  addToHistory: (item: Omit<CalculationItem, 'id' | 'timestamp'>) => void;
-  removeFromHistory: (id: string) => void;
-  clearHistory: () => void;
+  addToHistory: (item: Omit<CalculationItem, 'id' | 'timestamp'>) => Promise<void>;
+  removeFromHistory: (id: string) => Promise<void>;
+  clearHistory: () => Promise<void>;
   getHistoryTotal: () => number;
 
   // UI State
@@ -34,24 +25,56 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [history, setHistory] = useState<CalculationItem[]>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
+  // Carregar histórico ao iniciar
+  useEffect(() => {
+    const loadHistory = async () => {
+      try {
+        const savedHistory = await window.electron.history.getHistory();
+        setHistory(savedHistory);
+      } catch (error) {
+        console.error('Erro ao carregar histórico:', error);
+      }
+    };
+    loadHistory();
+  }, []);
+
   const addToHistory = useCallback(
-    (item: Omit<CalculationItem, 'id' | 'timestamp'>) => {
+    async (item: Omit<CalculationItem, 'id' | 'timestamp'>) => {
       const newItem: CalculationItem = {
         ...item,
         id: `calc_${Date.now()}`,
         timestamp: Date.now(),
       };
-      setHistory((prev) => [...prev, newItem]);
+      
+      try {
+        await window.electron.history.addToHistory(newItem);
+        setHistory((prev) => [...prev, newItem]);
+      } catch (error) {
+        console.error('Erro ao adicionar ao histórico:', error);
+        throw error;
+      }
     },
     []
   );
 
-  const removeFromHistory = useCallback((id: string) => {
-    setHistory((prev) => prev.filter((item) => item.id !== id));
+  const removeFromHistory = useCallback(async (id: string) => {
+    try {
+      await window.electron.history.removeFromHistory(id);
+      setHistory((prev) => prev.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error('Erro ao remover do histórico:', error);
+      throw error;
+    }
   }, []);
 
-  const clearHistory = useCallback(() => {
-    setHistory([]);
+  const clearHistory = useCallback(async () => {
+    try {
+      await window.electron.history.clearHistory();
+      setHistory([]);
+    } catch (error) {
+      console.error('Erro ao limpar histórico:', error);
+      throw error;
+    }
   }, []);
 
   const getHistoryTotal = useCallback(() => {

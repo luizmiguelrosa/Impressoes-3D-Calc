@@ -181,14 +181,69 @@ export const HistoryPage: React.FC = () => {
 
               <div className="border-t my-2" />
 
+              <div>
+                <span className="text-sm font-medium text-gray-600 block mb-2">Detalhamento de Custos (unitário)</span>
+                <div className="space-y-2 text-sm bg-gray-50 p-4 rounded">
+                  <div className="flex justify-between">
+                    <span className="text-gray-700">Material:</span>
+                    <span className="font-semibold">R$ {(selectedCalculation.materialCost || 0).toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-700">Energia:</span>
+                    <span className="font-semibold">R$ {(selectedCalculation.energyCost || 0).toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-700">Depreciação:</span>
+                    <span className="font-semibold">R$ {(selectedCalculation.depreciationCost || 0).toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-700">ROI:</span>
+                    <span className={`font-semibold ${(selectedCalculation.roiCost || 0) > 0 ? 'text-blue-600' : ''}`}>
+                      R$ {(selectedCalculation.roiCost || 0).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-700">Acabamento:</span>
+                    <span className={`font-semibold ${(selectedCalculation.finishingCost || 0) > 0 ? 'text-orange-600' : ''}`}>
+                      R$ {(selectedCalculation.finishingCost || 0).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="border-t pt-2 flex justify-between">
+                    <span className="text-gray-700 font-medium">Total:</span>
+                    <span className="font-bold">R$ {(selectedCalculation.totalCost || 0).toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t my-2" />
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <span className="text-sm font-medium text-gray-600">Preço Unit.</span>
-                  <p className="text-lg font-semibold text-blue-600">R$ {selectedCalculation.unitPrice.toFixed(2)}</p>
+                  <span className="text-sm font-medium text-gray-600">Preço Unit. (com lucro)</span>
+                  <p className="text-lg font-semibold text-blue-600">
+                    R$ {(selectedCalculation.finalPrice / selectedCalculation.quantity).toFixed(2)}
+                  </p>
                 </div>
                 <div>
                   <span className="text-sm font-medium text-gray-600">Preço Total</span>
                   <p className="text-lg font-semibold text-green-600">R$ {selectedCalculation.finalPrice.toFixed(2)}</p>
+                </div>
+              </div>
+
+              <div className="border-t my-2" />
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <span className="text-sm font-medium text-gray-600">Lucro Total</span>
+                  <p className="text-lg font-semibold text-green-700">
+                    R$ {(selectedCalculation.finalPrice - (selectedCalculation.totalCost * selectedCalculation.quantity)).toFixed(2)}
+                  </p>
+                </div>
+                <div>
+                  <span className="text-sm font-medium text-gray-600">Margem de Lucro</span>
+                  <p className="text-lg font-semibold text-green-700">
+                    {(((selectedCalculation.finalPrice - (selectedCalculation.totalCost * selectedCalculation.quantity)) / (selectedCalculation.totalCost * selectedCalculation.quantity)) * 100).toFixed(1)}%
+                  </p>
                 </div>
               </div>
             </div>

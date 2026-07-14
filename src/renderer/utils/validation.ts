@@ -26,6 +26,15 @@ export const validateFilament = (data: any): ValidationError[] => {
     }
   }
 
+  if (data.averageFinishingPercentage !== undefined) {
+    if (data.averageFinishingPercentage < 0 || data.averageFinishingPercentage > 1) {
+      errors.push({
+        field: 'averageFinishingPercentage',
+        message: 'Média de acabamento deve estar entre 0 e 1',
+      });
+    }
+  }
+
   if (data.density !== undefined && data.density < 0) {
     errors.push({ field: 'density', message: 'Densidade não pode ser negativa' });
   }
@@ -61,6 +70,10 @@ export const validateSettings = (data: any): ValidationError[] => {
 
   if (data.setupFee < 0) {
     errors.push({ field: 'setupFee', message: 'Taxa de setup não pode ser negativa' });
+  }
+
+  if (data.roiMonths !== undefined && data.roiMonths < 0) {
+    errors.push({ field: 'roiMonths', message: 'Tempo de ROI não pode ser negativo' });
   }
 
   return errors;

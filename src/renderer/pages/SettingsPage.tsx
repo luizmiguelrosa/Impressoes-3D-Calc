@@ -357,6 +357,45 @@ export const SettingsPage: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            <div className="border-b pb-6">
+              <h2 className="text-xl font-semibold text-gray-700 mb-4">
+                Retorno de Investimento (ROI)
+              </h2>
+
+              <Alert className="mb-4 bg-blue-50 border-blue-200">
+                <AlertDescription className="text-blue-800">
+                  Define em quantos meses você deseja recuperar o investimento da máquina. Um custo adicional por hora será calculado e somado ao preço final.
+                </AlertDescription>
+              </Alert>
+
+              <div className="space-y-2">
+                <Label htmlFor="roi-months">Tempo desejado de ROI (meses)</Label>
+                <div className="flex items-center gap-2 max-w-md">
+                  <Input
+                    id="roi-months"
+                    type="number"
+                    value={settings.roiMonths || ""}
+                    onChange={(e) =>
+                      handleChange("roiMonths", parseFloat(e.target.value) || 0)
+                    }
+                    min={0}
+                    step={1}
+                    placeholder="12"
+                    className={fieldErrors.has("roiMonths") ? "border-red-500" : ""}
+                  />
+                  <span className="text-sm text-gray-500">meses</span>
+                </div>
+                {fieldErrors.has("roiMonths") && (
+                  <p className="text-xs text-red-500">
+                    {fieldErrors.get("roiMonths")}
+                  </p>
+                )}
+                <p className="text-xs text-gray-500">
+                  Padrão: 12 meses (0 = desabilita ROI)
+                </p>
+              </div>
+            </div>
           </div>
 
           <div className="flex gap-4 pt-6">
@@ -428,6 +467,12 @@ export const SettingsPage: React.FC = () => {
               <p className="text-gray-600">Taxa Setup</p>
               <p className="font-semibold text-gray-900">
                 R$ {settings.setupFee ? settings.setupFee.toFixed(2) : '0.00'}
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-600">ROI Desejado</p>
+              <p className="font-semibold text-gray-900">
+                {settings.roiMonths || 0} meses
               </p>
             </div>
           </div>

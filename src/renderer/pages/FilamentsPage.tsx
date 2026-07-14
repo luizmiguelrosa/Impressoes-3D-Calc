@@ -22,6 +22,7 @@ export const FilamentsPage: React.FC = () => {
     name: '',
     pricePerKg: 0,
     riskFactor: 0.1,
+    averageFinishingPercentage: 1.0,
   });
   const [formErrors, setFormErrors] = useState<Map<string, string>>(new Map());
 
@@ -117,6 +118,7 @@ export const FilamentsPage: React.FC = () => {
         name: '',
         pricePerKg: 0,
         riskFactor: 0.1,
+        averageFinishingPercentage: 1.0,
       });
     }
     setFormErrors(new Map());
@@ -130,6 +132,7 @@ export const FilamentsPage: React.FC = () => {
       name: '',
       pricePerKg: 0,
       riskFactor: 0.1,
+      averageFinishingPercentage: 1.0,
     });
     setFormErrors(new Map());
   };
@@ -208,6 +211,7 @@ export const FilamentsPage: React.FC = () => {
                   <TableHead>Nome</TableHead>
                   <TableHead>Preço</TableHead>
                   <TableHead>Fator Risco</TableHead>
+                  <TableHead>Média Acabamento</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
@@ -217,6 +221,7 @@ export const FilamentsPage: React.FC = () => {
                     <TableCell>{filament.name}</TableCell>
                     <TableCell>R$ {filament.pricePerKg.toFixed(2)}/kg</TableCell>
                     <TableCell>{(filament.riskFactor * 100).toFixed(1)}%</TableCell>
+                    <TableCell>{((filament.averageFinishingPercentage || 0) * 100).toFixed(0)}%</TableCell>
                     <TableCell className="text-right">
                       <Button
                         variant="ghost"
@@ -325,9 +330,35 @@ export const FilamentsPage: React.FC = () => {
                 placeholder="0.1"
                 className={formErrors.has('riskFactor') ? 'border-red-500' : ''}
               />
-              <p className="text-xs text-gray-500 mt-1">Entre 0 e 1 (ex: 0.1 = 10% de risco)</p>
+              <p className="text-xs text-gray-500 mt-1">Entre 0 e 1 (ex: 0.2 = 20% de risco)</p>
               {formErrors.has('riskFactor') && (
                 <p className="text-xs text-red-500 mt-1">{formErrors.get('riskFactor')}</p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="averageFinishingPercentage">Média de Acabamento (0-1)*</Label>
+              <Input
+                id="averageFinishingPercentage"
+                type="number"
+                value={formData.averageFinishingPercentage || 0}
+                onChange={(e) => {
+                  setFormData({ ...formData, averageFinishingPercentage: parseFloat(e.target.value) || 0 });
+                  const newErrors = new Map(formErrors);
+                  newErrors.delete('averageFinishingPercentage');
+                  setFormErrors(newErrors);
+                }}
+                min={0}
+                max={1}
+                step={0.1}
+                placeholder="1.0"
+                className={formErrors.has('averageFinishingPercentage') ? 'border-red-500' : ''}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Entre 0 e 1 (ex: 1.0 = 100% do custo de material, PLA comum)
+              </p>
+              {formErrors.has('averageFinishingPercentage') && (
+                <p className="text-xs text-red-500 mt-1">{formErrors.get('averageFinishingPercentage')}</p>
               )}
             </div>
           </div>

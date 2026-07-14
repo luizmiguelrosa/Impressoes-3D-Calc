@@ -10,6 +10,21 @@ class CostCalculator {
   }
 
   /**
+   * Calcula o custo de acabamento
+   * Custo Acabamento = CustoMaterial * MediaAcabamento%
+   */
+  calculateFinishingCost(
+    materialCost: number,
+    finishingPercentage: number,
+    needsFinishing: boolean
+  ): number {
+    if (!needsFinishing) return 0;
+    // Garantir que finishingPercentage existe e é válido
+    const percentage = finishingPercentage || 0;
+    return materialCost * percentage;
+  }
+
+  /**
    * Calcula o custo de energia
    * Custo Energia = (ConsumoWatts / 1000) * PreçoKWh * TempoHoras
    */
@@ -34,14 +49,32 @@ class CostCalculator {
   }
 
   /**
+   * Calcula o custo de ROI (Retorno de Investimento)
+   * Custo ROI = (ValorMáquina / (MesesROI * 30 * 8)) * TempoHoras
+   * Assumindo 30 dias/mês e 8 horas/dia de trabalho
+   */
+  calculateRoiCost(
+    printerCost: number,
+    roiMonths: number,
+    timeHours: number
+  ): number {
+    if (roiMonths <= 0) return 0;
+    const hoursPerMonth = 30 * 8; // 30 dias * 8 horas/dia = 240h/mês
+    const totalHoursForRoi = roiMonths * hoursPerMonth;
+    return (printerCost / totalHoursForRoi) * timeHours;
+  }
+
+  /**
    * Calcula o subtotal (soma de todos os custos)
    */
   calculateSubtotal(
     materialCost: number,
     energyCost: number,
-    depreciationCost: number
+    depreciationCost: number,
+    roiCost: number,
+    finishingCost: number
   ): number {
-    return materialCost + energyCost + depreciationCost;
+    return materialCost + energyCost + depreciationCost + roiCost + finishingCost;
   }
 
   /**
@@ -127,12 +160,24 @@ class CostCalculator {
       settings.printerLifespanH,
       input.timeHours
     );
+    const roiCost = this.calculateRoiCost(
+      settings.printerCost,
+      settings.roiMonths || 0,
+      input.timeHours
+    );
+    const finishingCost = this.calculateFinishingCost(
+      materialCost,
+      filament.averageFinishingPercentage || 0,
+      input.needsFinishing || false
+    );
 
     // Subtotal
     const subtotal = this.calculateSubtotal(
       materialCost,
       energyCost,
-      depreciationCost
+      depreciationCost,
+      roiCost,
+      finishingCost
     );
 
     // Usar margem fornecida ou padrão
@@ -172,6 +217,8 @@ class CostCalculator {
       materialCost,
       energyCost,
       depreciationCost,
+      roiCost,
+      finishingCost,
       totalCost: subtotal, // custo unitário
       unitPrice: discountedPrice, // preço unitário após desconto
       finalPrice: finalPrice, // preço final para quantidade total

@@ -80,6 +80,7 @@ export const CalculatorPage: React.FC = () => {
       time,
       quantity,
       profitMargin,
+      needsFinishing,
     ],
     queryFn: async () => {
       if (
@@ -98,6 +99,7 @@ export const CalculatorPage: React.FC = () => {
         quantity: Math.max(1, quantity || 1),
         profitMarginMultiplier:
           profitMargin ?? config.settings.defaultProfitMargin,
+        needsFinishing: needsFinishing,
       } as any;
 
       // Validar entrada antes de enviar para IPC
@@ -123,7 +125,7 @@ export const CalculatorPage: React.FC = () => {
     retry: false,
   });
 
-  const handleAddToCart = useCallback(() => {
+  const handleAddToCart = useCallback(async () => {
     if (!calculation || !selectedFilamentData) {
       toast({
         variant: "destructive",
@@ -134,7 +136,7 @@ export const CalculatorPage: React.FC = () => {
     }
 
     try {
-      addToHistory({
+      await addToHistory({
         filamentId: selectedFilament!,
         filamentName: calculationName || selectedFilamentData.name,
         weightG: weight!,
@@ -142,6 +144,12 @@ export const CalculatorPage: React.FC = () => {
         quantity,
         unitPrice: calculation.unitPrice,
         finalPrice: calculation.finalPrice,
+        materialCost: calculation.materialCost,
+        energyCost: calculation.energyCost,
+        depreciationCost: calculation.depreciationCost,
+        roiCost: calculation.roiCost || 0,
+        finishingCost: calculation.finishingCost || 0,
+        totalCost: calculation.totalCost,
       });
 
       toast({
@@ -272,6 +280,14 @@ export const CalculatorPage: React.FC = () => {
                     {(selectedFilamentData.riskFactor * 100).toFixed(1)}%
                   </span>
                 </div>
+                <div className="flex justify-between">
+                  <span className="font-medium text-gray-700">
+                    Média de Acabamento:
+                  </span>
+                  <span className="text-gray-900">
+                    {((selectedFilamentData.averageFinishingPercentage || 0) * 100).toFixed(0)}%
+                  </span>
+                </div>
               </div>
             </div>
           )}
@@ -387,13 +403,7 @@ export const CalculatorPage: React.FC = () => {
             </Label>
           </div>
 
-          {needsFinishing && (
-            <Alert>
-              <AlertDescription>
-                Custo de mão de obra será adicionado ao preço final. Verifique as configurações de margem de lucro.
-              </AlertDescription>
-            </Alert>
-          )}
+
         </div>
       </div>
 
@@ -431,6 +441,22 @@ export const CalculatorPage: React.FC = () => {
                 </span>
                 <span className="font-semibold">
                   R$ {calculation.depreciationCost.toFixed(2)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-700">
+                  Custo de ROI (unit.):
+                </span>
+                <span className={`font-semibold ${(calculation.roiCost || 0) > 0 ? 'text-blue-600' : ''}`}>
+                  R$ {(calculation.roiCost || 0).toFixed(2)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-700">
+                  Custo de Acabamento (unit.):
+                </span>
+                <span className={`font-semibold ${(calculation.finishingCost || 0) > 0 ? 'text-orange-600' : ''}`}>
+                  R$ {(calculation.finishingCost || 0).toFixed(2)}
                 </span>
               </div>
 

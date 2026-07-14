@@ -9,13 +9,15 @@ const defaultConfig: Config = {
     printerLifespanH: 8000,
     defaultProfitMargin: 2.0,
     setupFee: 5.0,
+    roiMonths: 12,
   },
   filaments: [
     {
       id: '1',
       name: 'PLA Basic Branco',
       pricePerKg: 92.0,
-      riskFactor: 0.1,
+      riskFactor: 0.2,
+      averageFinishingPercentage: 1.0,
     },
   ],
 };

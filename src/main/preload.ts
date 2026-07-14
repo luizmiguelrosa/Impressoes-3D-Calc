@@ -28,6 +28,13 @@ const electronAPI: IElectronAPI = {
     calculatePrice: (input) =>
       ipcRenderer.invoke('calculator:calculate', input),
   },
+  history: {
+    getHistory: () => ipcRenderer.invoke('history:get'),
+    addToHistory: (item) => ipcRenderer.invoke('history:add', item),
+    removeFromHistory: (id) => ipcRenderer.invoke('history:remove', id),
+    clearHistory: () => ipcRenderer.invoke('history:clear'),
+    getHistoryTotal: () => ipcRenderer.invoke('history:getTotal'),
+  },
 };
 
 contextBridge.exposeInMainWorld('electron', electronAPI);

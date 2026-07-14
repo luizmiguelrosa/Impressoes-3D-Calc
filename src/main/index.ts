@@ -9,8 +9,10 @@ import {
 import path from 'path';
 import isDev from 'electron-is-dev';
 import configManager from './storage/configManager';
+import historyManager from './storage/historyManager';
 import costCalculator from './calculator/costCalculator';
 import { CalculationInput, Filament } from './types';
+import type { CalculationItem } from './storage/historyManager';
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -201,6 +203,65 @@ ipcMain.handle(
     }
   }
 );
+
+// IPC Handlers - History
+ipcMain.handle('history:get', () => {
+  try {
+    return historyManager.getHistory();
+  } catch (error) {
+    console.error('[IPC ERROR] history:get', error);
+    throw new Error('Falha ao carregar histórico');
+  }
+});
+
+ipcMain.handle(
+  'history:add',
+  (_event: IpcMainInvokeEvent, item: CalculationItem) => {
+    try {
+      if (!item) {
+        throw new Error('Item é obrigatório');
+      }
+      historyManager.addToHistory(item);
+    } catch (error) {
+      console.error('[IPC ERROR] history:add', error);
+      throw new Error(
+        `Falha ao adicionar ao histórico: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
+      );
+    }
+  }
+);
+
+ipcMain.handle('history:remove', (_event: IpcMainInvokeEvent, id: string) => {
+  try {
+    if (!id) {
+      throw new Error('ID é obrigatório');
+    }
+    historyManager.removeFromHistory(id);
+  } catch (error) {
+    console.error('[IPC ERROR] history:remove', error);
+    throw new Error(
+      `Falha ao remover do histórico: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
+    );
+  }
+});
+
+ipcMain.handle('history:clear', () => {
+  try {
+    historyManager.clearHistory();
+  } catch (error) {
+    console.error('[IPC ERROR] history:clear', error);
+    throw new Error('Falha ao limpar histórico');
+  }
+});
+
+ipcMain.handle('history:getTotal', () => {
+  try {
+    return historyManager.getHistoryTotal();
+  } catch (error) {
+    console.error('[IPC ERROR] history:getTotal', error);
+    throw new Error('Falha ao calcular total do histórico');
+  }
+});
 
 // Menu
 const createMenu = (): void => {

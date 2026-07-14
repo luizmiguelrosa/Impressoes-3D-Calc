@@ -7,6 +7,7 @@ export interface Settings {
   printerLifespanH: number;
   defaultProfitMargin: number;
   setupFee: number;
+  roiMonths: number;
 }
 
 export interface Filament {
@@ -14,6 +15,7 @@ export interface Filament {
   name: string;
   pricePerKg: number;
   riskFactor: number;
+  averageFinishingPercentage: number;
   density?: number;
 }
 
@@ -28,12 +30,15 @@ export interface CalculationInput {
   timeHours: number;
   quantity: number;
   profitMarginMultiplier?: number;
+  needsFinishing?: boolean;
 }
 
 export interface CalculationResult {
   materialCost: number;
   energyCost: number;
   depreciationCost: number;
+  roiCost: number;
+  finishingCost: number;
   totalCost: number;
   unitPrice: number;
   finalPrice: number;
@@ -62,6 +67,31 @@ export interface IElectronAPI {
   calculator: {
     calculatePrice: (input: CalculationInput) => Promise<CalculationResult>;
   };
+  history: {
+    getHistory: () => Promise<CalculationHistoryItem[]>;
+    addToHistory: (item: CalculationHistoryItem) => Promise<void>;
+    removeFromHistory: (id: string) => Promise<void>;
+    clearHistory: () => Promise<void>;
+    getHistoryTotal: () => Promise<number>;
+  };
+}
+
+export interface CalculationHistoryItem {
+  id: string;
+  filamentId: string;
+  filamentName: string;
+  weightG: number;
+  timeHours: number;
+  quantity: number;
+  unitPrice: number;
+  finalPrice: number;
+  materialCost: number;
+  energyCost: number;
+  depreciationCost: number;
+  roiCost: number;
+  finishingCost: number;
+  totalCost: number;
+  timestamp: number;
 }
 
 declare global {

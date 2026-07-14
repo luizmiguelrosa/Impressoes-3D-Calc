@@ -14,11 +14,41 @@
     "build": "pnpm build:electron && pnpm build:react",
     "build:react": "webpack --config webpack.react.js --mode production",
     "build:electron": "tsc --project tsconfig.electron.json",
+    "pack": "pnpm build && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --dir",
+    "dist": "pnpm build && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win --dir",
+    "dist:win": "pnpm build && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win --dir",
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
     "type-check": "tsc --noEmit"
+  },
+  "build": {
+    "appId": "com.luizmiguel.impressoes3dcalc",
+    "productName": "Impressões 3D Calc",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "package.json",
+      "node_modules/**/*"
+    ],
+    "asarUnpack": [
+      "node_modules/electron-store/**/*",
+      "node_modules/electron-is-dev/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "dir",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.ico"
+    }
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.3",
